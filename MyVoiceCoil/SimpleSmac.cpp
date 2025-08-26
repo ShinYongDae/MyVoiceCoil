@@ -157,6 +157,8 @@ LRESULT CSimpleSmac::wmSerialReceived(WPARAM wParam, LPARAM lParam)
 	CString sReceived = (LPCTSTR)lParam;
 	m_sRcv += sReceived;
 	CString sSend;
+	CString sEscape;	// Escape(27)
+	sEscape.Format(_T("%c"), 27);
 
 	BOOL bCmd = FALSE;
 	int nPos = -1;
@@ -184,6 +186,12 @@ LRESULT CSimpleSmac::wmSerialReceived(WPARAM wParam, LPARAM lParam)
 	nPos = m_sRcv.Find(_T("MS220"));	// Homing
 	if (nPos > -1)
 		bCmd = TRUE;
+
+	nPos = m_sRcv.Find(sEscape);		// Escape
+	if (nPos > -1)
+	{
+		sReceived = _T("ESC");
+	}
 
 	if(bCmd)
 	{

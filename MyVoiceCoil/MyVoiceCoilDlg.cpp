@@ -74,6 +74,8 @@ BEGIN_MESSAGE_MAP(CMyVoiceCoilDlg, CDialog)
 	ON_BN_CLICKED(IDC_BTN_CLEAR2, &CMyVoiceCoilDlg::OnBnClickedBtnClear2)
 	ON_BN_CLICKED(IDC_CHECK_CONNECT2, &CMyVoiceCoilDlg::OnBnClickedCheckConnect2)
 	ON_BN_CLICKED(IDC_BTN_SEND2, &CMyVoiceCoilDlg::OnBnClickedBtnSend2)
+	ON_BN_CLICKED(IDC_BTN_ESCAPE_L, &CMyVoiceCoilDlg::OnBnClickedBtnEscapeL)
+	ON_BN_CLICKED(IDC_BTN_ESCAPE_R, &CMyVoiceCoilDlg::OnBnClickedBtnEscapeR)
 END_MESSAGE_MAP()
 
 
@@ -152,11 +154,18 @@ void CMyVoiceCoilDlg::ProcThrd(const LPVOID lpContext)
 
 BOOL CMyVoiceCoilDlg::ProcDlg()
 {
+	CString sEscape;	// Escape(27)
+	sEscape.Format(_T("%c"), 27);
+
 	if (!m_sCmd[0].IsEmpty())
 	{
 		if (m_pSmac[0])
 		{
 			m_pSmac[0]->Send(m_sCmd[0]);
+			if (m_sCmd[0] == sEscape)
+			{
+				m_sCmd[0] = _T("");
+			}
 		}
 		if (!m_bRepeat[0])
 			m_sCmd[0] = _T("");
@@ -190,6 +199,9 @@ void CMyVoiceCoilDlg::ProcThrd2(const LPVOID lpContext)
 
 BOOL CMyVoiceCoilDlg::ProcDlg2()
 {
+	CString sEscape;	// Escape(27)
+	sEscape.Format(_T("%c"), 27);
+
 	//if (!m_sCmd[0].IsEmpty())
 	//{
 	//	if (m_pSmac[0])
@@ -205,6 +217,10 @@ BOOL CMyVoiceCoilDlg::ProcDlg2()
 		if (m_pSmac[1])
 		{
 			m_pSmac[1]->Send(m_sCmd[1]);
+			if (m_sCmd[1] == sEscape)
+			{
+				m_sCmd[1] = _T("");
+			}
 		}
 		if (!m_bRepeat[1])
 			m_sCmd[1] = _T("");
@@ -261,13 +277,32 @@ LRESULT CMyVoiceCoilDlg::wmSmacReceived(WPARAM wParam, LPARAM lParam)
 	int nId = (int)wParam;
 	m_sRcv[nId] += sReceived;
 
-	int nPos = m_sRcv[nId].Find(_T("OK"));
+	int nPos;
+	nPos = m_sRcv[nId].Find(_T("OK"));
 	if (nPos > -1) 
 	{
 		if(nId == 0)
 			GetDlgItem(IDC_MESSAGE_LIST)->SetWindowText(m_sRcv[nId]);
 		else if(nId == 1)
 			GetDlgItem(IDC_MESSAGE_LIST2)->SetWindowText(m_sRcv[nId]);
+	}
+
+	nPos = m_sRcv[nId].Find(_T("ESC"));
+	if (nPos > -1)
+	{
+		if (nId == 0)
+		{
+			GetDlgItem(IDC_MESSAGE_LIST)->SetWindowText(m_sRcv[nId]);
+			m_bRepeat[0] = FALSE;
+			((CButton*)GetDlgItem(IDC_CHECK_REPEAT_L))->SetCheck(FALSE);
+
+		}
+		else if (nId == 1)
+		{
+			GetDlgItem(IDC_MESSAGE_LIST2)->SetWindowText(m_sRcv[nId]);
+			m_bRepeat[1] = FALSE;
+			((CButton*)GetDlgItem(IDC_CHECK_REPEAT_R))->SetCheck(FALSE);
+		}
 	}
 
 	return (LRESULT)1;
@@ -395,6 +430,13 @@ void CMyVoiceCoilDlg::OnBnClickedBtnHommingL()
 	m_sCmd[0] = sHomming;
 }
 
+void CMyVoiceCoilDlg::OnBnClickedBtnEscapeL()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CString sEscape;	// Escape(27)
+	sEscape.Format(_T("%c"), 27);
+	m_sCmd[0] = sEscape;
+}
 
 
 void CMyVoiceCoilDlg::OnBnClickedCheckConnect2()
@@ -464,4 +506,14 @@ void CMyVoiceCoilDlg::OnBnClickedBtnHommingR()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	CString sHomming = _T("MS220");	// Homming
 	m_sCmd[1] = sHomming;
+}
+
+
+
+void CMyVoiceCoilDlg::OnBnClickedBtnEscapeR()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CString sEscape;	// Escape(27)
+	sEscape.Format(_T("%c"), 27);
+	m_sCmd[1] = sEscape;
 }

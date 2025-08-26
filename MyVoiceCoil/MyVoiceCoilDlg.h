@@ -68,4 +68,6 @@ public:
 	afx_msg void OnBnClickedBtnClear2();
 	afx_msg void OnBnClickedCheckConnect2();
 	afx_msg void OnBnClickedBtnSend2();
+	afx_msg void OnBnClickedBtnEscapeL();
+	afx_msg void OnBnClickedBtnEscapeR();
 };
